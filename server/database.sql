@@ -1,26 +1,25 @@
 CREATE DATABASE capchat;
 
-CREATE TABLE User (
-    id uuid PRIMARY KEY DEFAULT
+CREATE TABLE Users(
+    id_user uuid PRIMARY KEY DEFAULT
     uuid_generate_v4(),
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    password VARCHAR(255),
+    user_first_name VARCHAR(255) NOT NULL,
+    user_last_name VARCHAR(255) NOT NULL,
+    user_email VARCHAR(255) NOT NULL,
+    user_password VARCHAR(255),
     isAdmin INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Theme (
-    id_theme uuid PRIMARY KEY DEFAULTm
+    id_theme SERIAL PRIMARY KEY, DEFAULT
     uuid_generate_v4(),
-    name VARCHAR(255)
+    nom_theme VARCHAR(255)
 );
 
-CREATE TABLE Capchat (
-    id_capchat uuid PRIMARY KEY DEFAULT
+CREATE TABLE Captcha (
+    id_captcha SERIAL PRIMARY KEY, DEFAULT
     uuid_generate_v4(),
     nom_capchat VARCHAR(255),
-    url VARCHAR(255),
     id uuid NOT NULL,
     id_theme uuid NOT NULL,
     FOREIGN KEY (id) REFERENCES User (id),
@@ -28,7 +27,12 @@ CREATE TABLE Capchat (
 );
 
 CREATE TABLE Image (
-    id_image uuid PRIMARY KEY DEFAULT
-    uuid_generate_v4(),
-    nom_image VARCHAR(255),
-)
+    id_image SERIAL PRIMARY KEY, DEFAULT,
+    nom_image VARCHAR(255) NOT NULL,
+    id_captcha UUID NOT NULL,
+    type_image TEXT CHECK(Type_Image IN ('neutre', 'singulière')) NOT NULL,
+    indice TEXT,
+    question_associee TEXT,
+    url_image TEXT NOT NULL,
+    FOREIGN KEY (id_captcha) REFERENCES Captcha(id_captcha)
+);
