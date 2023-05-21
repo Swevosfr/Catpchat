@@ -11,23 +11,21 @@ CREATE TABLE Users(
 );
 
 CREATE TABLE Theme (
-    id_theme SERIAL PRIMARY KEY, DEFAULT
-    uuid_generate_v4(),
+    id_theme SERIAL PRIMARY KEY,
     nom_theme VARCHAR(255)
 );
 
 CREATE TABLE Captcha (
-    id_captcha SERIAL PRIMARY KEY, DEFAULT
-    uuid_generate_v4(),
+    id_captcha SERIAL PRIMARY KEY, 
     nom_capchat VARCHAR(255),
     id uuid NOT NULL,
-    id_theme uuid NOT NULL,
+    id_theme NOT NULL,
     FOREIGN KEY (id) REFERENCES User (id),
     FOREIGN KEY (id_theme) REFERENCES Theme (id_theme)
 );
 
 CREATE TABLE Image (
-    id_image SERIAL PRIMARY KEY, DEFAULT,
+    id_image SERIAL PRIMARY KEY,
     nom_image VARCHAR(255) NOT NULL,
     id_captcha UUID NOT NULL,
     type_image TEXT CHECK(Type_Image IN ('neutre', 'singulière')) NOT NULL,
