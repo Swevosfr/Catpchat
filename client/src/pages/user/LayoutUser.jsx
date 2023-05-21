@@ -1,7 +1,12 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import 
+import NavbarUser from "../../components/NavbarUser";
 
 export default function LayoutUser() {
-  return <div>LayoutUser</div>;
+  return (
+    <div>
+      <NavbarUser />
+      <Outlet />
+    </div>
+  );
 }
