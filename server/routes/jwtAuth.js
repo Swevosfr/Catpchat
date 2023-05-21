@@ -40,4 +40,12 @@ router.post("/test", async (req, res) => {
   console.log("COucou");
 });
 
+router.post("/login", async (req, res) => {
+  try {
+  } catch (err) {
+    console.error("Error: ", err.message, "Stack: ", err.stack);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
