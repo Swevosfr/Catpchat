@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 //routes
-app.use("auth", require("./routes/jwtAuth"));
+app.use("/auth", require("./routes/jwtAuth"));
 
 //server running
 

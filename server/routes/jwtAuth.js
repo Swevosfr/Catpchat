@@ -1,21 +1,16 @@
 const router = require("express").Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
+const jwtGenerator = require("../utils/jwtGenerator");
 
 router.post("/register", async (req, res) => {
   try {
-    const {
-      id_user,
-      user_firstname,
-      user_lastname,
-      user_email,
-      user_password,
-    } = req.body;
+    const { user_first_name, user_last_name, user_email, user_password } =
+      req.body;
 
-    const user = await pool.query(
-      "SELECT user_email FROM Users WHERE id_user = $1",
-      [user_email]
-    );
+    const user = await pool.query("SELECT * FROM Users WHERE user_email = $1", [
+      user_email,
+    ]);
     if (user.rows.length !== 0) {
       return res.status(401).send("Utilisateur déjà existant !");
     }
@@ -28,17 +23,21 @@ router.post("/register", async (req, res) => {
 
     //entrer le nouvel utilisateur
     const newUser = await pool.query(
-      "INSERT INTO Users (user_firstname, user_lastname, user_email, user_password) VALUES ($1, $2, $3, $4) RETURNING *",
-      [user_firstname, user_lastname, user_email, bcryptPassword]
+      "INSERT INTO Users (user_first_name, user_last_name, user_email, user_password) VALUES ($1, $2, $3, $4) RETURNING *",
+      [user_first_name, user_last_name, user_email, bcryptPassword]
     );
 
     //jwt token
-    const token = jwtGenetator.jwtGenerator(newUser.rows[0].id);
+    const token = jwtGenerator.jwtUser(newUser.rows[0].id);
     res.json({ token });
   } catch (err) {
     console.error("Error: ", err.message, "Stack: ", err.stack);
     res.status(500).send("Server Error");
   }
+});
+
+router.post("/test", async (req, res) => {
+  console.log("COucou");
 });
 
 module.exports = router;
