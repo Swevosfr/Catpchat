@@ -42,6 +42,29 @@ router.post("/test", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+    //destructuration
+    const { user_email, user_password } = req.body;
+
+    // vérifier si l'utilisateur existe
+    const user = await pool.query(
+      "SELECT id_user, user_email, user_password FROM Users WHERE user_email = $1",
+      [user_email]
+    );
+    if (user.rows.length === 0) {
+      return res.status(401).json("Mot de passe ou email incorrect");
+    }
+
+    const validPassword = await bcrypt.compare(
+      user_password,
+      user.rows[0].user_password
+    );
+    if (!validPassword) {
+      return res.status(401).json("Mot de passe invalide");
+    }
+
+    // envoyer un token en cas de connexion
+    const token = jwtGenerator.jwtUser(user.rows[0].id_user);
+    res.json({ token });
   } catch (err) {
     console.error("Error: ", err.message, "Stack: ", err.stack);
     res.status(500).send("Server Error");
