@@ -12,8 +12,8 @@ export default function UserRouter() {
         <Route index element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/captcha" element={<Captcha />} />
+        <Route path="*" element={<Error />} />
       </Route>
-      <Route path="*" element={<Error />} />
     </Routes>
   );
 }
