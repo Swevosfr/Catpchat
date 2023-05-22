@@ -1,5 +1,3 @@
-import jwt_decode from "jwt-decode";
-
 let saveToken = (token) => {
   localStorage.setItem("token", token);
 };
