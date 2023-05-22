@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../../../images/logoCaptcha-removebg.png";
 
-export default function SignIn() {
+export default function Login() {
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
-    candidat_email: "",
-    candidat_password: "",
+    user_email: "",
+    user_password: "",
   });
 
-  const { candidat_email, candidat_password } = inputs;
+  const { user_email, user_password } = inputs;
 
   const onChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -18,9 +18,9 @@ export default function SignIn() {
   const onSubmitForm = async (e) => {
     e.preventDefault();
     try {
-      const body = { candidat_email, candidat_password };
+      const body = { user_email, user_password };
 
-      const response = await fetch("http://localhost:8080/auth/logincandidat", {
+      const response = await fetch("http://localhost:8089/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -31,7 +31,7 @@ export default function SignIn() {
       // Redirect to dashboard page upon successful login
       if (parseResponse.token) {
         localStorage.setItem("token", parseResponse.token);
-        navigate("/candidat/HomepageCandidat");
+        navigate("/user/dashboard");
       }
     } catch (err) {
       console.error(err.message);
@@ -55,9 +55,9 @@ export default function SignIn() {
             <div className="mt-2">
               <input
                 type="email"
-                name="candidat_email"
+                name="user_email"
                 autoComplete="family-name"
-                value={candidat_email}
+                value={user_email}
                 onChange={(e) => onChange(e)}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
               />
@@ -80,9 +80,9 @@ export default function SignIn() {
             <div className="mt-2">
               <input
                 id="password"
-                name="candidat_password"
+                name="user_password"
                 type="password"
-                value={candidat_password}
+                value={user_password}
                 onChange={(e) => onChange(e)}
                 autoComplete="current-password"
                 required
