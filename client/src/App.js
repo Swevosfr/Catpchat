@@ -1,10 +1,17 @@
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
+import PublicRoute from "./pages/public/PublicRoute";
+import UserRouter from "./pages/user/UserRouter";
 
 function App() {
   return (
     <div className="text-3xl font-bold underline">
-      <h1>Coucou</h1>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/*" element={<PublicRoute />} />
+          <Route path="/user/*" element={<UserRouter />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
