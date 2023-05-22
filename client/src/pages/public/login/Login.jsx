@@ -59,7 +59,7 @@ export default function Login() {
                 autoComplete="family-name"
                 value={user_email}
                 onChange={(e) => onChange(e)}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function Login() {
                 onChange={(e) => onChange(e)}
                 autoComplete="current-password"
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function Login() {
         <p className="mt-10 text-center text-sm text-gray-500">
           Pas un membre ?
           <Link
-            to="/SignUp"
+            to="/register"
             className="font-semibold text-indigo-500 hover:text-indigo-300 ml-1"
           >
             Inscrivez vous !
