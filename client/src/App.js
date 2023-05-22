@@ -6,7 +6,7 @@ import AuthGuard from "./helpers/AuthGuard";
 
 function App() {
   return (
-    <div>
+    <div className="h-full bg-gray-900">
       <BrowserRouter>
         <Routes>
           <Route path="/*" element={<PublicRoute />} />

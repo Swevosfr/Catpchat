@@ -11,6 +11,7 @@ app.use(cors());
 
 //routes
 app.use("/auth", require("./routes/jwtAuth"));
+app.use("/user", require("./routes/user"));
 
 //server running
 
