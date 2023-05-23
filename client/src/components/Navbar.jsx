@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,20 +14,22 @@ export default function Example() {
       >
         <div className="flex lg:flex-1">
           <p className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
-            <img
-              className="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-              alt=""
-            />
+            <span className="sr-only">Captcha</span>
+            <Link to="/home">
+              <img
+                className="h-8 w-auto"
+                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                alt=""
+              />
+            </Link>
           </p>
         </div>
         <div className="flex flex-1 items-center justify-end gap-x-6">
           <p className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-white">
-            Log in
+            <Link to="/login">Se connecter</Link>
           </p>
           <p className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            Sign up
+            <Link to="register">S'inscrire</Link>
           </p>
         </div>
         <div className="flex lg:hidden">
