@@ -18,7 +18,7 @@ CREATE TABLE Theme (
 CREATE TABLE Captcha (
     id_captcha SERIAL PRIMARY KEY, 
     nom_capchat VARCHAR(255),
-    id uuid NOT NULL,
+    id_user uuid NOT NULL,
     id_theme  INT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES Users (id_user),
     FOREIGN KEY (id_theme) REFERENCES Theme (id_theme)
