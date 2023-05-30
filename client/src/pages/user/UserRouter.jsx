@@ -2,8 +2,8 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Error from "../../utils/Error";
 import LayoutUser from "./LayoutUser";
-import Dashboard from "./Dashboard";
-import Captcha from "./Captcha";
+import AddCaptcha from "./addCaptcha/AddCaptcha";
+import Dashboard from "./dashboard/Dashboard";
 
 export default function UserRouter() {
   return (
@@ -11,7 +11,7 @@ export default function UserRouter() {
       <Route element={<LayoutUser />}>
         <Route index element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/captcha" element={<Captcha />} />
+        <Route path="/add-captcha" element={<AddCaptcha />} />
         <Route path="*" element={<Error />} />
       </Route>
     </Routes>

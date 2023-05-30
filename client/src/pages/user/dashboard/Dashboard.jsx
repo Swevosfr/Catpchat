@@ -1,0 +1,10 @@
+import React from "react";
+
+export default function Dashboard() {
+  return (
+    <div className="color-white">
+      Dashboard
+      qsfqfqdfsgqsdfqsdfgqsfdgqfgdsgfssfdgsfdgsdfgsdfgsdfgsdfgsdfgsdfgsdgffgfsdgsf
+    </div>
+  );
+}
