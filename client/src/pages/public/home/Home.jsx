@@ -10,7 +10,7 @@ export default function Home() {
             Projet captcha
           </span>
         </p>
-        <div className="justify-center">
+        <div>
           <img src={Ghost} className="" alt="Captcha" />
         </div>
       </div>
