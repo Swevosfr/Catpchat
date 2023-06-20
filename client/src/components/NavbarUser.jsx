@@ -5,26 +5,25 @@ import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
   CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
+  FolderOpenIcon,
   HomeIcon,
-  UsersIcon,
   XMarkIcon,
+  FolderPlusIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
 
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
+  { name: "Captchas", href: "#", icon: FolderOpenIcon, current: false },
 
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
+  {
+    name: "Ajouter un captcha",
+    href: "#",
+    icon: FolderPlusIcon,
+    current: false,
+  },
 
   { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
-
-  { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
 ];
 
 const teams = [
@@ -44,22 +43,6 @@ export default function Example() {
 
   return (
     <>
-      {/*
-
-        This example requires updating your template:
-
-
-
-        ```
-
-        <html class="h-full bg-white">
-
-        <body class="h-full">
-
-        ```
-
-      */}
-
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -269,13 +252,13 @@ export default function Example() {
                   >
                     <img
                       className="h-8 w-8 rounded-full bg-gray-800"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                      src="https://img.freepik.com/free-icon/user_318-159711.jpg"
                       alt=""
                     />
 
                     <span className="sr-only">Your profile</span>
 
-                    <span aria-hidden="true">Tom Cook</span>
+                    <span aria-hidden="true">Profil</span>
                   </a>
                 </li>
               </ul>
