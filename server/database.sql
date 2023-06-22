@@ -28,9 +28,6 @@ CREATE TABLE Image (
     id_image SERIAL PRIMARY KEY,
     nom_image VARCHAR(255) NOT NULL,
     id_captcha UUID NOT NULL,
-    type_image TEXT CHECK(Type_Image IN ('neutre', 'singulière')) NOT NULL,
-    indice TEXT,
     question_associee TEXT,
-    url_image TEXT NOT NULL,
     FOREIGN KEY (id_captcha) REFERENCES Captcha(id_captcha)
 );
