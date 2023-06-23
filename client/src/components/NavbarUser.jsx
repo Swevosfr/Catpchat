@@ -12,18 +12,26 @@ import {
 } from "@heroicons/react/24/outline";
 
 const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-
-  { name: "Captchas", href: "#", icon: FolderOpenIcon, current: false },
-
   {
-    name: "Ajouter un captcha",
-    href: "#",
-    icon: FolderPlusIcon,
+    name: "Dashboard",
+    href: "/user/dashboard",
+    icon: HomeIcon,
     current: false,
   },
 
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
+  {
+    name: "Captchas",
+    href: "/user/user-captcha",
+    icon: FolderOpenIcon,
+    current: false,
+  },
+
+  {
+    name: "Ajouter un captcha",
+    href: "/user/add-catpcha",
+    icon: FolderPlusIcon,
+    current: false,
+  },
 ];
 
 function classNames(...classes) {
@@ -32,6 +40,11 @@ function classNames(...classes) {
 
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentNavItem, setCurrentNavItem] = useState("Dashboard");
+
+  function handleNavClick(name) {
+    setCurrentNavItem(name);
+  }
 
   return (
     <>
@@ -102,32 +115,28 @@ export default function Example() {
                     </div>
 
                     <nav className="flex flex-1 flex-col ring-gray-200">
-                      <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
-                          <ul role="list" className="-mx-2 space-y-1">
-                            {navigation.map((item) => (
-                              <li key={item.name}>
-                                <a
-                                  href={item.href}
-                                  className={classNames(
-                                    item.current
-                                      ? "bg-gray-800 text-white"
-                                      : "text-gray-400 hover:text-white hover:bg-gray-800",
+                      <ul role="list" className="-mx-2 space-y-1">
+                        {navigation.map((item) => (
+                          <li key={item.name}>
+                            <a
+                              href={item.href}
+                              className={classNames(
+                                item.name === currentNavItem
+                                  ? "bg-gray-800 text-white"
+                                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                              )}
+                              onClick={() => handleNavClick(item.name)}
+                            >
+                              <item.icon
+                                className="h-6 w-6 shrink-0"
+                                aria-hidden="true"
+                              />
 
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                                  )}
-                                >
-                                  <item.icon
-                                    className="h-6 w-6 shrink-0"
-                                    aria-hidden="true"
-                                  />
-
-                                  {item.name}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </li>
+                              {item.name}
+                            </a>
+                          </li>
+                        ))}
                       </ul>
                     </nav>
                   </div>
@@ -139,7 +148,7 @@ export default function Example() {
 
         {/* Static sidebar for desktop */}
 
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col ring-1 ring-white/10">
+        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col ring-1 ring-white/10 h-full">
           {/* Sidebar component, swap this element with another sidebar if you like */}
 
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6  ">
