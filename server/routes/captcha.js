@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/api/ajout-theme", async (req, res) => {
+router.post("/api/ajout-theme", Authorization, async (req, res) => {
   try {
     const { nom_theme } = req.body;
 
@@ -37,29 +37,42 @@ router.post("/api/ajout-theme", async (req, res) => {
   }
 });
 
-router.post("/api/captcha", async (req, res) => {
+router.get("/theme", Authorization, async (req, res) => {
+  try {
+    const { id_theme } = req.query;
+    // Insertion du nouveau thème dans la base de données
+    const Theme = await pool.query("SELECT nom_theme from Theme");
+    // Succès
+    res.json(Theme.rows);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur de serveur" });
+  }
+});
+
+router.post("/api/ajout-captcha/:id_theme", Authorization, async (req, res) => {
   try {
     const { nom_captcha } = req.body;
+    const id_theme = req.params.id_theme;
+    const id_user = req.user; // l'ID de l'utilisateur est obtenu à partir du middleware
 
-    // Vérifiez si le label du captcha est déjà utilisé
-    const existingCaptcha = await pool.query(
-      "SELECT nom_captcha FROM Captcha WHERE id_captcha = $1",
-      [nom_captcha]
-    );
-    if (existingCaptcha.rows.length > 0) {
+    // Vérifiez si le thème existe
+    const themeQuery = "SELECT * FROM Theme WHERE id_theme = $1";
+    const themeResult = await pool.query(themeQuery, [id_theme]);
+
+    if (themeResult.rows.length === 0) {
       return res
         .status(400)
-        .json({ message: "Le nom du captcha est déjà utilisé" });
+        .json({ message: "Le thème spécifié n'existe pas" });
     }
 
+    // Insertion du nouveau captcha dans la base de données
     const insertQuery =
-      "INSERT INTO Captcha (nom_captcha) VALUES ($1) RETURNING id";
-    const newCaptcha = await pool.query(insertQuery, [nom_captcha]);
+      "INSERT INTO Captcha (nom_capchat, id_user, id_theme) VALUES ($1, $2, $3)";
+    await pool.query(insertQuery, [nom_captcha, id_user, id_theme]);
 
-    res.status(200).json({
-      message: "Captcha ajouté avec succès",
-      id: newCaptcha.rows[0].id_captcha,
-    });
+    // Succès
+    res.status(200).json({ message: "Captcha ajouté avec succès" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Erreur de serveur" });
