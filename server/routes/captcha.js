@@ -20,6 +20,52 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+router.post("/api/ajout-theme", async (req, res) => {
+  try {
+    const { nom_theme } = req.body;
+
+    // Insertion du nouveau thème dans la base de données
+    const newTheme = await pool.query(
+      "INSERT INTO Theme (nom_theme) VALUES ($1) RETURNING *",
+      [nom_theme]
+    );
+    // Succès
+    res.status(200).json({ message: "Thème ajouté avec succès" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur de serveur" });
+  }
+});
+
+router.post("/api/captcha", async (req, res) => {
+  try {
+    const { nom_captcha } = req.body;
+
+    // Vérifiez si le label du captcha est déjà utilisé
+    const existingCaptcha = await pool.query(
+      "SELECT nom_captcha FROM Captcha WHERE id_captcha = $1",
+      [nom_captcha]
+    );
+    if (existingCaptcha.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Le nom du captcha est déjà utilisé" });
+    }
+
+    const insertQuery =
+      "INSERT INTO Captcha (nom_captcha) VALUES ($1) RETURNING id";
+    const newCaptcha = await pool.query(insertQuery, [nom_captcha]);
+
+    res.status(200).json({
+      message: "Captcha ajouté avec succès",
+      id: newCaptcha.rows[0].id_captcha,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur de serveur" });
+  }
+});
+
 router.get("/upload-images", Authorization, async (req, res) => {});
 
 router.get(
