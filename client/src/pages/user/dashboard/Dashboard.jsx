@@ -1,6 +1,6 @@
 import { CloudArrowUpIcon, ServerIcon } from "@heroicons/react/20/solid";
 
-export default function Example() {
+export default function Dashboard() {
   return (
     <div className=" min-h-screen w-full bg-white">
       <div className="relative isolate overflow-hidden  px-6 py-24 sm:py-32 lg:overflow-visible py-10 lg:pl-72 h-full w-full">
@@ -46,9 +46,9 @@ export default function Example() {
                   Un meilleur dépoiement !
                 </h1>
                 <p className="mt-6 text-xl leading-8 text-gray-700">
-                  Bienvenue sur Captcha, une plateforme permettant aux Artites
-                  de créer ses propres catpchas pour qu'ils soient déployer lors
-                  de la connexion sur la plateforme.
+                  Bienvenue sur Captcha, une plateforme permettant aux Artistes
+                  de créer leurs propres catpchas pour qu'ils soient déployés
+                  lors de la connexion sur la plateforme.
                 </p>
               </div>
             </div>
@@ -68,7 +68,7 @@ export default function Example() {
                   d'année. La totalité des fonctionnalités ne sont pas encore
                   disponibles et sont toujours en cours de développement.
                 </p>
-                <ul role="list" className="mt-8 space-y-8 text-gray-600">
+                <ul className="mt-8 space-y-8 text-gray-600">
                   <li className="flex gap-x-3">
                     <CloudArrowUpIcon
                       className="mt-1 h-5 w-5 flex-none text-indigo-600"
