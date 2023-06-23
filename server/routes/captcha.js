@@ -4,6 +4,7 @@ const Authorization = require("../middleware/Authorization");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const AdmZip = require("adm-zip");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -89,48 +90,70 @@ router.get(
 );
 
 router.post(
-  "/upload-images/:imageName/:id_captcha",
-  upload.single("imageFile"),
+  "/ajout-images/:id_captcha/:id_theme",
+  upload.array("image", 8),
   async (req, res) => {
     try {
-      let imageName = req.params.imageName;
-      const question = req.body.question;
       const id_captcha = req.params.id_captcha;
+      const id_theme = req.params.id_theme;
+      const files = req.files;
 
-      // Vérifiez le type d'image
-      if (!isValidImageFile(req.file)) {
-        return res.status(400).json({
-          message:
-            "Sélectionnez un fichier d'image au format .png, .jpg ou .jpeg",
-        });
+      // Vérifiez si le captcha et le thème existent
+      const captchaQuery = "SELECT * FROM Captcha WHERE id_captcha = $1";
+      const themeQuery = "SELECT * FROM Theme WHERE id_theme = $1";
+      const captchaResult = await pool.query(captchaQuery, [id_captcha]);
+      const themeResult = await pool.query(themeQuery, [id_theme]);
+
+      if (captchaResult.rows.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Le captcha spécifié n'existe pas" });
+      }
+      if (themeResult.rows.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Le thème spécifié n'existe pas" });
       }
 
-      let ext = path.extname(req.file.originalname).toLowerCase();
-      let newExt = path.extname(imageName).toLowerCase();
+      // Pour chaque fichier
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let imageName = file.originalname;
+        const question = req.body.questions[i];
 
-      if (newExt !== ".png" && newExt !== ".jpg" && newExt !== ".jpeg") {
-        imageName += ext;
+        // Vérifiez le type d'image
+        if (!isValidImageFile(image)) {
+          return res.status(400).json({
+            message:
+              "Veuillez sélectionner un fichier d'image au format .png, .jpg ou .jpeg",
+          });
+        }
+
+        // Déplacez l'image téléchargée vers le bon dossier en fonction de la présence de la question
+        const destinationDir = question ? "singuliers" : "neutres";
+        const oldFilePath = file.path;
+        const newFilePath = path.join(
+          __dirname,
+          "..",
+          "upload",
+          destinationDir,
+          imageName
+        );
+        fs.renameSync(oldFilePath, newFilePath);
+
+        // Insérer la nouvelle image dans la base de données
+        const insertQuery =
+          "INSERT INTO Image (nom_image, id_captcha, question_associee, id_theme) VALUES ($1, $2, $3, $4)";
+        await pool.query(insertQuery, [
+          imageName,
+          id_captcha,
+          question,
+          id_theme,
+        ]);
       }
-
-      // Déplacez l'image téléchargée vers le bon dossier en fonction de la présence de la question
-      const destinationDir = question ? "singuliers" : "neutres";
-      const oldFilePath = req.file.path;
-      const newFilePath = path.join(
-        __dirname,
-        "..",
-        "upload",
-        destinationDir,
-        imageName
-      );
-      fs.renameSync(oldFilePath, newFilePath);
-
-      // Insérer la nouvelle image dans la base de données
-      const insertQuery =
-        "INSERT INTO Image (nom_image, id_captcha, question_associee) VALUES ($1, $2, $3)";
-      await pool.query(insertQuery, [imageName, id_captcha, question]);
 
       // Succès
-      res.status(200).json({ message: "Image ajoutée avec succès" });
+      res.status(200).json({ message: "Images ajoutées avec succès" });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erreur de serveur" });
