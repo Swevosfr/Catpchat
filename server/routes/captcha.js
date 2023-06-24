@@ -7,14 +7,10 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (req.body.question) {
-      cb(null, "./uploads/singuliers");
-    } else {
-      cb(null, "./uploads/neutres");
-    }
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/temp/");
   },
-  filename: (req, file, cb) => {
+  filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
 });
@@ -90,73 +86,93 @@ router.get(
 );
 
 router.post(
-  "/ajout-images/:id_captcha/:id_theme",
-  upload.array("image", 8),
+  "/api/upload-images/:id_captcha",
+  upload.array("files", 8),
   async (req, res) => {
     try {
-      const id_captcha = req.params.id_captcha;
-      const id_theme = req.params.id_theme;
+      const { id_captcha } = req.params;
       const files = req.files;
 
-      // Vérifiez si le captcha et le thème existent
-      const captchaQuery = "SELECT * FROM Captcha WHERE id_captcha = $1";
-      const themeQuery = "SELECT * FROM Theme WHERE id_theme = $1";
-      const captchaResult = await pool.query(captchaQuery, [id_captcha]);
-      const themeResult = await pool.query(themeQuery, [id_theme]);
-
-      if (captchaResult.rows.length === 0) {
+      const isCaptcha = await pool.query(
+        "SELECT * FROM Captcha WHERE id_captcha = $1",
+        [id_captcha]
+      );
+      if (isCaptcha.rows.length === 0) {
         return res
           .status(400)
-          .json({ message: "Le captcha spécifié n'existe pas" });
-      }
-      if (themeResult.rows.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "Le thème spécifié n'existe pas" });
+          .json({ message: "Le captcha spécifié n'existe pas." });
       }
 
-      // Pour chaque fichier
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        let imageName = file.originalname;
-        const question = req.body.questions[i];
 
-        // Vérifiez le type d'image
-        if (!isValidImageFile(image)) {
-          return res.status(400).json({
-            message:
-              "Veuillez sélectionner un fichier d'image au format .png, .jpg ou .jpeg",
-          });
+        if (file.mimetype === "application/zip") {
+          let zip = new AdmZip(file.path);
+          let zipEntries = zip.getEntries();
+
+          for (const entry of zipEntries) {
+            if (entry.isDirectory) continue;
+
+            let imageName = entry.name;
+            const question = req.body.question_associee[i];
+            const destinationDir = question ? "singuliers" : "neutres";
+
+            const newFilePath = path.join(
+              __dirname,
+              "uploads",
+              destinationDir,
+              imageName
+            );
+
+            if (!fs.existsSync(newFilePath)) {
+              fs.mkdirSync(newFilePath, { recursive: true });
+            }
+
+            fs.writeFileSync(newFilePath, entry.getData());
+
+            const insertQuery =
+              "INSERT INTO Image (nom_image, id_captcha, question_associee, url_image) VALUES ($1, $2, $3, $4)";
+            await pool.query(insertQuery, [
+              imageName,
+              id_captcha,
+              question,
+              newFilePath,
+            ]);
+          }
+        } else {
+          let imageName = file.originalname;
+          const question = req.body.question_associee[i];
+          const destinationDir = question ? "singuliers" : "neutres";
+
+          const oldFilePath = file.path;
+          const newFilePath = path.join(
+            __dirname,
+            "uploads",
+            destinationDir,
+            imageName
+          );
+
+          if (!fs.existsSync(newFilePath)) {
+            fs.mkdirSync(newFilePath, { recursive: true });
+          }
+
+          fs.renameSync(oldFilePath, newFilePath);
+
+          const insertQuery =
+            "INSERT INTO Image (nom_image, id_captcha, question_associee, url_image) VALUES ($1, $2, $3, $4)";
+          await pool.query(insertQuery, [
+            imageName,
+            id_captcha,
+            question,
+            newFilePath,
+          ]);
         }
-
-        // Déplacez l'image téléchargée vers le bon dossier en fonction de la présence de la question
-        const destinationDir = question ? "singuliers" : "neutres";
-        const oldFilePath = file.path;
-        const newFilePath = path.join(
-          __dirname,
-          "..",
-          "upload",
-          destinationDir,
-          imageName
-        );
-        fs.renameSync(oldFilePath, newFilePath);
-
-        // Insérer la nouvelle image dans la base de données
-        const insertQuery =
-          "INSERT INTO Image (nom_image, id_captcha, question_associee, id_theme) VALUES ($1, $2, $3, $4)";
-        await pool.query(insertQuery, [
-          imageName,
-          id_captcha,
-          question,
-          id_theme,
-        ]);
       }
 
-      // Succès
-      res.status(200).json({ message: "Images ajoutées avec succès" });
+      res.status(200).json({ message: "Images ajoutées avec succès." });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Erreur de serveur" });
+      return res.status(500).json({ message: "Erreur de serveur." });
     }
   }
 );
