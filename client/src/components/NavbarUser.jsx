@@ -20,16 +20,15 @@ const navigation = [
   },
 
   {
-    name: "Captchas",
-    href: "/user/user-captcha",
-    icon: FolderOpenIcon,
+    name: "Ajouter un captcha",
+    href: "/user/add-captcha",
+    icon: FolderPlusIcon,
     current: false,
   },
-
   {
-    name: "Ajouter un captcha",
-    href: "/user/add-catpcha",
-    icon: FolderPlusIcon,
+    name: "Captchas",
+    href: "/user/tout-les-captcha",
+    icon: FolderOpenIcon,
     current: false,
   },
 ];
