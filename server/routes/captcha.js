@@ -91,8 +91,12 @@ router.post(
   upload.array("files"),
   async (req, res) => {
     try {
-      const { captchaName, theme, newTheme, questions } = req.body; // Ajouté questions
+      const { captchaName, theme, newTheme } = req.body;
       const userID = req.user;
+      let questions = req.body.questions;
+      if (typeof questions === "string") {
+        questions = JSON.parse(questions); // Parse questions if it is a string
+      }
 
       const validCaptchaName = await pool.query(
         "SELECT id_captcha FROM Captcha WHERE nom_capchat = $1",
@@ -111,21 +115,30 @@ router.post(
 
         themeID = result.rows[0].id_theme;
       } else {
+        const existingThemeQuery =
+          "SELECT id_theme FROM Theme WHERE id_theme = $1";
+        const result = await pool.query(existingThemeQuery, [theme]);
+        if (result.rows.length === 0) {
+          return res
+            .status(400)
+            .json({ error: "Le thème spécifié n'existe pas" });
+        }
+
         themeID = theme;
       }
 
       const insertCaptchaQuery =
-        "INSERT INTO Captcha (id_user, id_theme, nom_capchat) VALUES ($1, $2, $3) RETURNING id_captcha";
+        "INSERT INTO Captcha (id_user, id_theme, nom_capchat, urlUsage) VALUES ($1, $2, $3, $4) RETURNING id_captcha";
       const captchaResult = await pool.query(insertCaptchaQuery, [
         userID,
         themeID,
+        captchaName,
         captchaName,
       ]);
       const captchaID = captchaResult.rows[0].id_captcha;
 
       req.files.forEach(async (file, index) => {
-        // Transformé en forEach pour utiliser l'index
-        const question = questions[index] || null; // Si la question n'est pas fournie, utilisez null
+        const question = questions[index] || null;
         const imageName = file.originalname;
 
         const destinationPath = path.join(
@@ -134,7 +147,7 @@ router.post(
           "uploads",
           imageName
         );
-        fs.renameSync(file.path, destinationPath); // Déplace le fichier de son chemin temporaire vers le dossier 'uploads'
+        fs.renameSync(file.path, destinationPath);
 
         const url_image = path.join("uploads", imageName);
 
@@ -155,5 +168,34 @@ router.post(
     }
   }
 );
+
+router.delete("/captcha/:id", Authorization, async (req, res) => {
+  try {
+    const captchaID = req.params.id;
+
+    // Vérifier si le captcha existe
+    const checkCaptchaQuery = "SELECT * FROM Captcha WHERE id_captcha = $1";
+    const checkCaptchaResult = await pool.query(checkCaptchaQuery, [captchaID]);
+
+    if (checkCaptchaResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Le captcha spécifié n'existe pas" });
+    }
+
+    // Supprimer les images associées au captcha
+    const deleteImagesQuery = "DELETE FROM Image WHERE id_captcha = $1";
+    await pool.query(deleteImagesQuery, [captchaID]);
+
+    // Supprimer le captcha lui-même
+    const deleteCaptchaQuery = "DELETE FROM Captcha WHERE id_captcha = $1";
+    await pool.query(deleteCaptchaQuery, [captchaID]);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur de serveur" });
+  }
+});
 
 module.exports = router;
