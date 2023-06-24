@@ -76,15 +76,6 @@ router.post("/api/ajout-captcha/:id_theme", Authorization, async (req, res) => {
   }
 });
 
-router.get("/upload-images", Authorization, async (req, res) => {});
-
-router.get(
-  "/upload-images",
-  Authorization,
-  upload.array("image"),
-  async (req, res) => {}
-);
-
 router.post(
   "/upload-captcha",
   Authorization,
