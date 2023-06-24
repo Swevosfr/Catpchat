@@ -29,5 +29,6 @@ CREATE TABLE Image (
     nom_image VARCHAR(255) NOT NULL,
     id_captcha UUID NOT NULL,
     question_associee TEXT,
+    url_imagte VARCHAR(255)
     FOREIGN KEY (id_captcha) REFERENCES Captcha(id_captcha)
 );

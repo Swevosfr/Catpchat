@@ -8,7 +8,7 @@ const AdmZip = require("adm-zip");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", "uploads", "images", "temp")); // Spécifiez le répertoire de destination des fichiers
+    cb(null, path.join(__dirname, "..", "uploads")); // Spécifiez le répertoire de destination des fichiers
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // Utilisez le nom d'origine du fichier
@@ -84,16 +84,15 @@ router.get(
   upload.array("image"),
   async (req, res) => {}
 );
+
 router.post(
-  "/api/newCaptcha",
+  "/upload-captcha",
   Authorization,
   upload.array("files"),
   async (req, res) => {
     try {
-      const { captchaName, theme, newTheme } = req.body;
+      const { captchaName, theme, newTheme, questions } = req.body; // Ajouté questions
       const userID = req.user;
-      const filesData = JSON.parse(req.body.filesData);
-      let fileFiles = req.files;
 
       const validCaptchaName = await pool.query(
         "SELECT id_captcha FROM Captcha WHERE nom_capchat = $1",
@@ -124,46 +123,30 @@ router.post(
       ]);
       const captchaID = captchaResult.rows[0].id_captcha;
 
-      for (let i = 0; i < filesData.length; i++) {
-        const { name, question } = filesData[i];
+      req.files.forEach(async (file, index) => {
+        // Transformé en forEach pour utiliser l'index
+        const question = questions[index] || null; // Si la question n'est pas fournie, utilisez null
+        const imageName = file.originalname;
 
-        const isQuestionFile = !!question;
-        let newFileName = name;
-        const fileFile = fileFiles[i];
-        const extension = path.extname(newFileName);
-        if (!extension || (extension !== ".png" && extension !== ".jpg")) {
-          const originalExtension = path.extname(fileFile.originalname);
-          if (originalExtension === ".png" || originalExtension === ".jpg") {
-            newFileName = newFileName + originalExtension;
-          } else {
-            return res
-              .status(400)
-              .json({ error: "Le fichier doit être une image PNG ou JPG" });
-          }
-        }
-
-        const sourcePath = path.join(__dirname, "..", "uploads", "temp", name);
         const destinationPath = path.join(
           __dirname,
           "..",
           "uploads",
-          isQuestionFile ? "questions" : "answers",
-          captchaName,
-          newFileName
+          imageName
         );
-        fs.renameSync(sourcePath, destinationPath);
+        fs.renameSync(file.path, destinationPath); // Déplace le fichier de son chemin temporaire vers le dossier 'uploads'
 
-        const url_image = path.join(
-          "uploads",
-          isQuestionFile ? "questions" : "answers",
-          captchaName,
-          newFileName
-        );
+        const url_image = path.join("uploads", imageName);
 
         const insertImageQuery =
-          "INSERT INTO Image (id_captcha, nom_image, question_associee) VALUES ($1, $2, $3)";
-        await pool.query(insertImageQuery, [captchaID, newFileName, question]);
-      }
+          "INSERT INTO Image (id_captcha, nom_image, question_associee, url_image) VALUES ($1, $2, $3, $4)";
+        await pool.query(insertImageQuery, [
+          captchaID,
+          imageName,
+          question,
+          url_image,
+        ]);
+      });
 
       res.json({ success: true });
     } catch (error) {
