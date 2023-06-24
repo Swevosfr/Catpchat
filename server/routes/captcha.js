@@ -189,4 +189,22 @@ router.delete("/captcha/:id", Authorization, async (req, res) => {
   }
 });
 
+// Ajoutez cette route pour récupérer les thèmes existants
+router.get("/themes", async (req, res) => {
+  try {
+    const getThemesQuery = "SELECT * FROM Theme";
+    const themesResult = await pool.query(getThemesQuery);
+
+    const themes = themesResult.rows.map((theme) => ({
+      id: theme.id_theme,
+      name: theme.nom_theme,
+    }));
+
+    res.json(themes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur de serveur" });
+  }
+});
+
 module.exports = router;
