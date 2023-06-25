@@ -209,16 +209,13 @@ router.get("/user-captcha", Authorization, async (req, res) => {
     // Recherche des captchas de l'utilisateur
     const getCaptchaQuery = `
       SELECT 
-        Captcha.*, 
-        Theme.nom_theme AS theme,
-        Image.nom_image AS image_nom,
-        Image.url_image AS image_url
+        Captcha.id_captcha,
+        Captcha.nom_capchat AS nom_captcha,
+        Theme.nom_theme AS theme
       FROM 
         Captcha 
       JOIN 
         Theme ON Captcha.id_theme = Theme.id_theme 
-      JOIN 
-        Image ON Captcha.id_captcha = Image.id_captcha 
       WHERE 
         Captcha.id_user = $1
     `;
@@ -229,21 +226,19 @@ router.get("/user-captcha", Authorization, async (req, res) => {
     }
 
     // Création de l'objet de réponse contenant les informations des captchas
-    const captchas = captchaResult.rows.map((row) => ({
-      id_captcha: row.id_captcha,
-      id_theme: row.id_theme,
-      nom_captcha: row.nom_captcha,
-      urlUsage: row.urlUsage,
-      theme: row.theme,
-      images: [
-        {
-          nom_image: row.image_nom,
-          url_image: `/uploads/${row.image_url}`,
-        },
-      ],
-    }));
+    const captchas = {};
+    captchaResult.rows.forEach((row) => {
+      const { id_captcha, nom_captcha, theme } = row;
+      if (!captchas[id_captcha]) {
+        captchas[id_captcha] = {
+          id_captcha,
+          nom_captcha,
+          theme,
+        };
+      }
+    });
 
-    res.json(captchas);
+    res.json(Object.values(captchas));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur de serveur" });
