@@ -32,14 +32,18 @@ const Captcha = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Captcha</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-white">
+        {captcha &&
+          captcha.images.find((image) => image.question_associee)
+            ?.question_associee}
+      </h2>
       {captcha && (
-        <>
+        <div className="bg-white p-4 rounded">
           <div className="grid grid-cols-2 gap-4">
             {captcha.images.map((image, index) => (
               <div
                 key={index}
-                className="flex items-center justify-center w-full h-32 bg-gray-200"
+                className="flex items-center justify-center w-full h-32 bg-gray-200 transition-transform duration-300 transform hover:scale-110"
                 onClick={() => handleImageClick(image)}
               >
                 <img
@@ -50,8 +54,7 @@ const Captcha = () => {
               </div>
             ))}
           </div>
-          <p className="mt-4">{captcha.question}</p>
-        </>
+        </div>
       )}
       {!captcha && <p>Loading...</p>}
     </div>
