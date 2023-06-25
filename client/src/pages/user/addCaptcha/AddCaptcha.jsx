@@ -65,7 +65,7 @@ const CreateCaptchaForm = () => {
     // Créer un objet de configuration pour Axios
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`, // Ajouter le token au header
+        token: token, // Ajouter le token au header
       },
     };
 

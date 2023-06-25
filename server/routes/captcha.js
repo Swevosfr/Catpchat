@@ -207,4 +207,51 @@ router.get("/themes", async (req, res) => {
   }
 });
 
+// Route pour obtenir un captcha par son ID
+router.get("/captcha/:id", Authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Recherche du captcha par son ID avec le thème et les images associées
+    const getCaptchaQuery = `
+      SELECT 
+        Captcha.*, 
+        Theme.nom_theme AS theme,
+        Image.nom_image AS image_nom,
+        Image.url_image AS image_url
+      FROM 
+        Captcha 
+      JOIN 
+        Theme ON Captcha.id_theme = Theme.id_theme 
+      JOIN 
+        Image ON Captcha.id_captcha = Image.id_captcha 
+      WHERE 
+        Captcha.id_captcha = $1
+    `;
+    const captchaResult = await pool.query(getCaptchaQuery, [id]);
+
+    if (captchaResult.rows.length === 0) {
+      return res.status(404).json({ error: "Captcha introuvable" });
+    }
+
+    // Création de l'objet de réponse contenant les informations du captcha et ses images
+    const captcha = {
+      id_captcha: captchaResult.rows[0].id_captcha,
+      id_theme: captchaResult.rows[0].id_theme,
+      nom_captcha: captchaResult.rows[0].nom_captcha,
+      urlUsage: captchaResult.rows[0].urlUsage,
+      theme: captchaResult.rows[0].theme,
+      images: captchaResult.rows.map((row) => ({
+        nom_image: row.image_nom,
+        url_image: `/uploads/${row.image_url}`, // Ajout du chemin relatif vers l'image
+      })),
+    };
+
+    res.json(captcha);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur de serveur" });
+  }
+});
+
 module.exports = router;
