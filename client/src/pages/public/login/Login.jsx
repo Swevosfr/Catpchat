@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { accountService } from "../../../services/accountService";
+import Captcha from "../../../components/Captchat";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -8,6 +9,8 @@ export default function Login() {
     user_email: "",
     user_password: "",
   });
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaDone, setCaptchaDone] = useState(false);
 
   const { user_email, user_password } = inputs;
 
@@ -15,28 +18,41 @@ export default function Login() {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
-  const onSubmitForm = async (e) => {
-    e.preventDefault();
-    try {
+  const handleCaptchaClick = () => {
+    setShowCaptcha(true);
+  };
+
+  const handleCaptchaClose = () => {
+    setShowCaptcha(false);
+    setCaptchaDone(true);
+  };
+
+  const handleLoginClick = () => {
+    if (captchaDone) {
       const body = { user_email, user_password };
 
-      const response = await fetch("http://localhost:8089/auth/login", {
+      fetch("http://localhost:8089/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      });
-      const parseResponse = await response.json();
-      console.log(parseResponse);
+      })
+        .then((response) => response.json())
+        .then((parseResponse) => {
+          console.log(parseResponse);
 
-      // Redirect to dashboard page upon successful login
-      if (parseResponse.token) {
-        //localStorage.setItem("token", parseResponse.token);
-        accountService.saveToken(parseResponse.token);
-        navigate("/user/dashboard");
-      }
-    } catch (err) {
-      console.error(err.message);
+          if (parseResponse.token) {
+            accountService.saveToken(parseResponse.token);
+            navigate("/user/dashboard");
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -52,7 +68,7 @@ export default function Login() {
         </h2>
       </div>
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={onSubmitForm} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium leading-6 text-white">
               Email
@@ -63,7 +79,7 @@ export default function Login() {
                 name="user_email"
                 autoComplete="family-name"
                 value={user_email}
-                onChange={(e) => onChange(e)}
+                onChange={onChange}
                 className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
               />
             </div>
@@ -88,7 +104,7 @@ export default function Login() {
                 name="user_password"
                 type="password"
                 value={user_password}
-                onChange={(e) => onChange(e)}
+                onChange={onChange}
                 autoComplete="current-password"
                 required
                 className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
@@ -98,8 +114,11 @@ export default function Login() {
 
           <div>
             <button
-              type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              className={`flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${
+                !captchaDone ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={handleLoginClick}
+              disabled={!captchaDone}
             >
               Se connecter
             </button>
@@ -115,7 +134,11 @@ export default function Login() {
           </Link>
         </p>
         <div className="mt-6">
-          <button className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+          <button
+            className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            onClick={handleCaptchaClick}
+            disabled={showCaptcha}
+          >
             Faire le captcha
           </button>
         </div>
@@ -123,6 +146,16 @@ export default function Login() {
       <p className="text-center text-gray-500 text-xs pt-10">
         &copy;2023. Tous droits réservés.
       </p>
+
+      {/* Modal Captcha */}
+      {showCaptcha && (
+        <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
+          <Captcha
+            setCaptchaDone={setCaptchaDone}
+            onClose={handleCaptchaClose}
+          />
+        </div>
+      )}
     </div>
   );
 }

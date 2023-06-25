@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const Captcha = () => {
+const Captcha = ({ setCaptchaDone, onClose }) => {
   const [captcha, setCaptcha] = useState(null);
   const [countdown, setCountdown] = useState(30);
 
@@ -18,7 +18,6 @@ const Captcha = () => {
 
     if (countdown === 0) {
       clearInterval(timer);
-      window.location.reload();
     }
 
     return () => clearInterval(timer);
@@ -39,10 +38,8 @@ const Captcha = () => {
     if (image.question_associee) {
       // L'utilisateur a cliqué sur l'image contenant une question
       // Vous pouvez effectuer ici les actions nécessaires pour valider le captcha
-
-      // Redirection vers la page de connexion
-      // Remplacez '/login' par l'URL de votre page de connexion
-      window.location.href = "/login";
+      setCaptchaDone(true);
+      onClose();
     } else if (countdown > 0) {
       // L'utilisateur s'est trompé d'image et le décompte n'est pas encore arrivé à 0, décrémenter le décompte de 5 secondes
       setCountdown((prevCountdown) =>
