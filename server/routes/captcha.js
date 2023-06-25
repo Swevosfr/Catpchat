@@ -255,4 +255,59 @@ router.get("/user-captcha", Authorization, async (req, res) => {
   }
 });
 
+// Route pour obtenir un captcha aléatoire avec toutes ses images et questions
+router.get("/random-captcha", async (req, res) => {
+  try {
+    // Requête pour obtenir un captcha aléatoire avec le thème, toutes ses images et questions associées
+    const randomCaptchaQuery = `
+      SELECT 
+        Captcha.*, 
+        Theme.nom_theme AS theme,
+        Image.nom_image AS image_nom,
+        Image.url_image AS image_url,
+        Image.question_associee AS image_question
+      FROM 
+        Captcha 
+      JOIN 
+        Theme ON Captcha.id_theme = Theme.id_theme 
+      JOIN 
+        Image ON Captcha.id_captcha = Image.id_captcha 
+      WHERE 
+        Captcha.id_captcha IN (
+          SELECT 
+            id_captcha 
+          FROM 
+            Captcha 
+          ORDER BY 
+            RANDOM()
+          LIMIT 1
+        )
+    `;
+    const captchaResult = await pool.query(randomCaptchaQuery);
+
+    if (captchaResult.rows.length === 0) {
+      return res.status(404).json({ error: "Aucun captcha trouvé" });
+    }
+
+    // Création de l'objet de réponse contenant les informations du captcha, ses images et questions
+    const captcha = {
+      id_captcha: captchaResult.rows[0].id_captcha,
+      id_theme: captchaResult.rows[0].id_theme,
+      nom_captcha: captchaResult.rows[0].nom_captcha,
+      urlUsage: captchaResult.rows[0].urlUsage,
+      theme: captchaResult.rows[0].theme,
+      images: captchaResult.rows.map((row) => ({
+        nom_image: row.image_nom,
+        url_image: row.image_url, // Utilisation directe de l'URL stockée dans la base de données
+        question_associee: row.image_question, // Ajout de la question associée à l'image
+      })),
+    };
+
+    res.json(captcha);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur de serveur" });
+  }
+});
+
 module.exports = router;

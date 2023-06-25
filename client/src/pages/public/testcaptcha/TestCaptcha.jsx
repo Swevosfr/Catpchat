@@ -1,60 +1,59 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const Captcha = ({ captchaId }) => {
+const Captcha = () => {
   const [captcha, setCaptcha] = useState(null);
 
   useEffect(() => {
-    // Fonction pour récupérer les données du captcha par son ID
-    const fetchCaptcha = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8089/captcha/${captchaId}`
-        );
-        setCaptcha(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchCaptcha();
-  }, [captchaId]);
+  }, []);
 
-  if (!captcha) {
-    return <div>Loading...</div>;
-  }
+  const fetchCaptcha = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8089/captcha/random-captcha"
+      );
+      setCaptcha(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  const singularImage = captcha.images.find(
-    (image) => image.question_associee !== null
-  );
-  const otherImages = captcha.images.filter(
-    (image) => image.question_associee === null
-  );
+  const handleImageClick = (image) => {
+    if (image.question_associee) {
+      // L'utilisateur a cliqué sur l'image contenant une question
+      // Vous pouvez effectuer ici les actions nécessaires pour valider le captcha
+
+      // Redirection vers la page de connexion
+      // Remplacez '/login' par l'URL de votre page de connexion
+      window.location.href = "/login";
+    }
+  };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold">{captcha.nom_captcha}</h2>
-      <h3 className="text-lg">Theme: {captcha.theme}</h3>
-      <div className="flex flex-wrap justify-center">
-        {otherImages.map((image) => (
-          <img
-            key={image.nom_image}
-            src={image.url_image}
-            alt={image.nom_image}
-            className="w-24 h-24 m-2"
-          />
-        ))}
-        <div className="singular-image w-24 h-24 m-2">
-          <img
-            src={singularImage.url_image}
-            alt={singularImage.nom_image}
-            className="w-full h-full"
-          />
-          <div className="question text-center mt-2">
-            {singularImage.question_associee}
+    <div className="max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Captcha</h2>
+      {captcha && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            {captcha.images.map((image, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center w-full h-32 bg-gray-200"
+                onClick={() => handleImageClick(image)}
+              >
+                <img
+                  src={image.url_image}
+                  alt={image.nom_image}
+                  className="max-h-full max-w-full"
+                />
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+          <p className="mt-4">{captcha.question}</p>
+        </>
+      )}
+      {!captcha && <p>Loading...</p>}
     </div>
   );
 };
