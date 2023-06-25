@@ -18,6 +18,7 @@ const Captcha = ({ setCaptchaDone, onClose }) => {
 
     if (countdown === 0) {
       clearInterval(timer);
+      window.location.reload(); // Rafraîchit la page lorsque le compte à rebours atteint 0 secondes
     }
 
     return () => clearInterval(timer);
