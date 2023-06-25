@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const CreateCaptchaForm = () => {
   const [captchaName, setCaptchaName] = useState("");
@@ -10,10 +11,10 @@ const CreateCaptchaForm = () => {
 
   useEffect(() => {
     // Récupérer les thèmes disponibles depuis le backend
-    fetch("http://localhost:8089/captcha/themes")
-      .then((response) => response.json())
-      .then((data) => {
-        setThemes(data);
+    axios
+      .get("http://localhost:8089/captcha/themes")
+      .then((response) => {
+        setThemes(response.data);
       })
       .catch((error) => {
         console.error(error);
@@ -34,8 +35,8 @@ const CreateCaptchaForm = () => {
 
   const handleImageUpload = (e) => {
     const selectedImages = Array.from(e.target.files);
-    setImages(selectedImages);
-    setQuestions(new Array(selectedImages.length).fill(""));
+    setImages([...images, ...selectedImages]);
+    setQuestions([...questions, ...new Array(selectedImages.length).fill("")]);
   };
 
   const handleQuestionChange = (e, index) => {
@@ -44,8 +45,29 @@ const CreateCaptchaForm = () => {
     setQuestions(updatedQuestions);
   };
 
+  const handleRemoveImage = (index) => {
+    const updatedImages = [...images];
+    updatedImages.splice(index, 1);
+    setImages(updatedImages);
+
+    const updatedQuestions = [...questions];
+    updatedQuestions.splice(index, 1);
+    setQuestions(updatedQuestions);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Récupérer le token depuis le localStorage
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+
+    // Créer un objet de configuration pour Axios
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`, // Ajouter le token au header
+      },
+    };
 
     // Form data
     const formData = new FormData();
@@ -59,18 +81,15 @@ const CreateCaptchaForm = () => {
       formData.append(`files`, image, image.name);
     });
 
-    // Submit the form data to the server using fetch or axios
-    fetch("/upload-captcha", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Handle success or error
-        console.log(data);
+    // Envoyer la requête à l'aide d'Axios
+    axios
+      .post("http://localhost:8089/captcha/upload-captcha", formData, config)
+      .then((response) => {
+        // Gérer le succès
+        console.log(response.data);
       })
       .catch((error) => {
-        // Handle error
+        // Gérer l'erreur
         console.error(error);
       });
   };
@@ -188,18 +207,39 @@ const CreateCaptchaForm = () => {
                     <label className="block mb-2 font-medium">Questions:</label>
                     {images.map((image, index) => (
                       <div key={index}>
-                        <img
-                          src={URL.createObjectURL(image)}
-                          alt={`Captcha Image ${index + 1}`}
-                          className="w-20 h-20 mb-2"
-                        />
-                        <input
-                          type="text"
-                          placeholder={`Question ${index + 1}`}
-                          value={questions[index] || ""}
-                          onChange={(e) => handleQuestionChange(e, index)}
-                          className="w-full px-3 py-2 mb-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                        />
+                        <div className="flex items-center mb-2">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Captcha Image ${index + 1}`}
+                            className="w-20 h-20 mr-2"
+                          />
+                          <input
+                            type="text"
+                            placeholder={`Question ${index + 1}`}
+                            value={questions[index] || ""}
+                            onChange={(e) => handleQuestionChange(e, index)}
+                            className="w-full px-3 py-2 mb-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="flex items-center justify-center ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>

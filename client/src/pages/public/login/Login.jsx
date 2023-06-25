@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { accountService } from "../../../services/accountService";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ export default function Login() {
 
       // Redirect to dashboard page upon successful login
       if (parseResponse.token) {
-        localStorage.setItem("token", parseResponse.token);
+        //localStorage.setItem("token", parseResponse.token);
+        accountService.saveToken(parseResponse.token);
         navigate("/user/dashboard");
       }
     } catch (err) {
