@@ -1,9 +1,31 @@
 import { CloudArrowUpIcon, ServerIcon } from "@heroicons/react/20/solid";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+  const [admin, setAdmin] = useState(false);
+
+  async function getAdmin() {
+    try {
+      const response = await fetch("http://localhost:8089/admin/isAdmin", {
+        method: "POST",
+        headers: { token: localStorage.token },
+      });
+
+      const parseResponse = await response.json();
+      setAdmin(parseResponse.isadmin);
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+
+  useEffect(() => {
+    getAdmin();
+  }, []);
+
   return (
     <div className=" min-h-screen w-full bg-white">
-      <div className="relative isolate overflow-hidden  px-6 py-24 sm:py-32 lg:overflow-visible py-10 lg:pl-72 h-full w-full">
+      <div className="relative isolate overflow-hidden  px-6 sm:py-32 lg:overflow-visible py-10 lg:pl-72 h-full w-full">
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <svg
             className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-gray-200 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)]"
@@ -38,6 +60,13 @@ export default function Dashboard() {
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-y-10">
           <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:mx-auto lg:grid lg:w-full lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8">
             <div className="lg:pr-4">
+              {admin === 1 && (
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                  <Link to="/admin/admin-dashboard">
+                    Acceder à la page admin
+                  </Link>
+                </button>
+              )}
               <div className="lg:max-w-lg">
                 <p className="text-base font-semibold leading-7 text-indigo-600">
                   Déployez vos captchas

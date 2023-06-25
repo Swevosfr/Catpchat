@@ -14,6 +14,7 @@ app.use(express.static("./uploads"));
 //routes
 app.use("/auth", require("./routes/jwtAuth"));
 app.use("/captcha", require("./routes/captcha"));
+app.use("/admin", require("./routes/admin"));
 //server running
 
 app.listen(port, () => {

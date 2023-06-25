@@ -33,7 +33,7 @@ const AllCaptcha = () => {
 
   return (
     <div className=" min-h-screen w-full bg-white">
-      <div className="relative isolate overflow-hidden  px-6 py-24 sm:py-32 lg:overflow-visible py-10 lg:pl-72 h-full w-full">
+      <div className="relative isolate overflow-hidden  px-6 py-24 sm:py-32 lg:overflow-visible lg:pl-72 h-full w-full">
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <svg
             className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-gray-200 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)]"
@@ -66,7 +66,7 @@ const AllCaptcha = () => {
           </svg>
         </div>
         <h1 className="text-2xl font-bold mb-4">Mes Captchas</h1>
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
           <thead>
             <tr>
               <th className="py-3 px-4 border-b font-semibold text-sm text-gray-700">
