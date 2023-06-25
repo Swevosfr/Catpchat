@@ -8,7 +8,7 @@ const AdmZip = require("adm-zip");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", "uploads")); // Spécifiez le répertoire de destination des fichiers
+    cb(null, path.join(__dirname, "../../uploads")); // Spécifiez le répertoire de destination des fichiers
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // Utilisez le nom d'origine du fichier
@@ -134,22 +134,14 @@ router.post(
 
         const destinationPath = path.join(
           __dirname,
-          "..",
-          "uploads",
+          "../../uploads",
           imageName
         );
         fs.renameSync(file.path, destinationPath);
 
-        const url_image = path.join("uploads", imageName);
-
         const insertImageQuery =
-          "INSERT INTO Image (id_captcha, nom_image, question_associee, url_image) VALUES ($1, $2, $3, $4)";
-        await pool.query(insertImageQuery, [
-          captchaID,
-          imageName,
-          question,
-          url_image,
-        ]);
+          "INSERT INTO Image (id_captcha, nom_image, question_associee) VALUES ($1, $2, $3)";
+        await pool.query(insertImageQuery, [captchaID, imageName, question]);
       });
 
       res.json({ success: true });
@@ -298,7 +290,7 @@ router.get("/random-captcha", async (req, res) => {
       theme: captchaResult.rows[0].theme,
       images: captchaResult.rows.map((row) => ({
         nom_image: row.image_nom,
-        url_image: `../../../../server/${row.image_url}`, // Ajout du chemin relatif vers l'image
+        url_image: `http://localhost:8089/${row.image_url}`, // Ajout du chemin relatif vers l'image
         question_associee: row.image_question, // Ajout de la question associée à l'image
       })),
     };
