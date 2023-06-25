@@ -5,6 +5,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const AdmZip = require("adm-zip");
+const crypto = require("crypto");
+
+const randomImageName = (byte = 32) => crypto.randomBytes().toString("hex");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -264,8 +267,16 @@ router.get("/random-captcha", async (req, res) => {
         Theme ON Captcha.id_theme = Theme.id_theme 
       JOIN 
         Image ON Captcha.id_captcha = Image.id_captcha
-      ORDER BY RANDOM()
-      LIMIT 1
+      WHERE
+        Captcha.id_captcha IN (
+          SELECT 
+            id_captcha 
+          FROM 
+            Captcha 
+          ORDER BY 
+            RANDOM()
+          LIMIT 1
+        )
     `;
     const captchaResult = await pool.query(randomCaptchaQuery);
 

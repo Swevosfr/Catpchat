@@ -8,7 +8,8 @@ const pool = require("./db");
 //middleware
 app.use(express.json());
 app.use(cors());
-app.use(express.static("uploads"));
+app.use(express.static("../uploads"));
+app.use(express.static("./uploads"));
 
 //routes
 app.use("/auth", require("./routes/jwtAuth"));
