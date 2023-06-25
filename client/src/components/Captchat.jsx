@@ -1,73 +1,63 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const Captcha = () => {
   const [captcha, setCaptcha] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    fetchRandomCaptcha();
+    fetchCaptcha();
   }, []);
 
-  const fetchRandomCaptcha = async () => {
+  const fetchCaptcha = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         "http://localhost:8089/captcha/random-captcha"
       );
-      const data = await response.json();
-      setCaptcha(data);
+      setCaptcha(response.data);
     } catch (error) {
-      console.error("Erreur lors de la récupération du captcha :", error);
+      console.error(error);
     }
   };
 
   const handleImageClick = (image) => {
     if (image.question_associee) {
-      setSelectedImage(image);
-    }
-  };
+      // L'utilisateur a cliqué sur l'image contenant une question
+      // Vous pouvez effectuer ici les actions nécessaires pour valider le captcha
 
-  const handleCaptchaSubmit = () => {
-    if (selectedImage) {
-      // Effectuer la validation du captcha
-      console.log("Captcha validé ! Redirection vers la page de connexion...");
-      // Effectuer la redirection vers la page de connexion
-    } else {
-      console.log(
-        "Sélectionnez une image avec la question associée pour valider le captcha."
-      );
+      // Redirection vers la page de connexion
+      // Remplacez '/login' par l'URL de votre page de connexion
+      window.location.href = "/login";
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Captcha</h1>
+    <div className="max-w-md mx-auto">
       {captcha && (
-        <div>
-          <h2 className="text-lg font-bold mb-2">Thème: {captcha.theme}</h2>
-          <div className="grid grid-cols-4 gap-4 mb-4">
-            {captcha.images.map((image) => (
-              <img
-                key={image.url_image}
-                src={image.url_image}
-                alt={image.nom_image}
+        <div className="bg-white p-4 rounded">
+          <h2 className="text-2xl font-bold mb-4 text-center text-black">
+            {
+              captcha.images.find((image) => image.question_associee)
+                ?.question_associee
+            }
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            {captcha.images.map((image, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center w-full h-32 bg-gray-200 transition-transform duration-300 transform hover:scale-110"
                 onClick={() => handleImageClick(image)}
-                className={`w-full h-auto cursor-pointer transition-opacity ${
-                  selectedImage === image
-                    ? "opacity-100"
-                    : "opacity-50 hover:opacity-100"
-                }`}
-              />
+              >
+                <img
+                  src={image.url_image}
+                  alt={image.url_image}
+                  className="max-h-full max-w-full"
+                />
+              </div>
             ))}
           </div>
-          <p className="mb-2">Question : {selectedImage?.question_associee}</p>
-          <button
-            onClick={handleCaptchaSubmit}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Valider
-          </button>
         </div>
       )}
+      {!captcha && <p>Loading...</p>}
     </div>
   );
 };

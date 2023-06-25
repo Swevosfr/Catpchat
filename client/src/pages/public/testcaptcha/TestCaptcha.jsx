@@ -1,64 +1,37 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
+import { useEffect, useState } from "react";
+import ReactModal from "react-modal";
+import Captcha from "../../../components/Captchat";
 
-const Captcha = () => {
-  const [captcha, setCaptcha] = useState(null);
+export default function TestCaptcha() {
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchCaptcha();
+    setModalOpen(true);
   }, []);
 
-  const fetchCaptcha = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8089/captcha/random-captcha"
-      );
-      setCaptcha(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleImageClick = (image) => {
-    if (image.question_associee) {
-      // L'utilisateur a cliqué sur l'image contenant une question
-      // Vous pouvez effectuer ici les actions nécessaires pour valider le captcha
-
-      // Redirection vers la page de connexion
-      // Remplacez '/login' par l'URL de votre page de connexion
-      window.location.href = "/login";
-    }
+  const closeModal = () => {
+    setModalOpen(false);
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center text-white">
-        {captcha &&
-          captcha.images.find((image) => image.question_associee)
-            ?.question_associee}
-      </h2>
-      {captcha && (
-        <div className="bg-white p-4 rounded">
-          <div className="grid grid-cols-2 gap-4">
-            {captcha.images.map((image, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-center w-full h-32 bg-gray-200 transition-transform duration-300 transform hover:scale-110"
-                onClick={() => handleImageClick(image)}
-              >
-                <img
-                  src={image.url_image}
-                  alt={image.url_image}
-                  className="max-h-full max-w-full"
-                />
-              </div>
-            ))}
-          </div>
+    <ReactModal
+      isOpen={modalOpen}
+      onRequestClose={closeModal}
+      className="fixed inset-0 flex items-center justify-center z-50 outline-none"
+      overlayClassName="fixed inset-0 bg-black bg-opacity-75 z-40"
+    >
+      <div className="flex flex-col items-center justify-center">
+        <div className="bg-white p-4 rounded shadow-lg">
+          <Captcha />
+          <button
+            onClick={closeModal}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
+          >
+            Fermer
+          </button>
         </div>
-      )}
-      {!captcha && <p>Loading...</p>}
-    </div>
+      </div>
+    </ReactModal>
   );
-};
-
-export default Captcha;
+}
