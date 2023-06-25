@@ -298,7 +298,7 @@ router.get("/random-captcha", async (req, res) => {
       theme: captchaResult.rows[0].theme,
       images: captchaResult.rows.map((row) => ({
         nom_image: row.image_nom,
-        url_image: row.image_url, // Utilisation directe de l'URL stockée dans la base de données
+        url_image: `../../../../server/${row.image_url}`, // Ajout du chemin relatif vers l'image
         question_associee: row.image_question, // Ajout de la question associée à l'image
       })),
     };

@@ -44,7 +44,7 @@ const Captcha = () => {
               >
                 <img
                   src={image.url_image}
-                  alt={image.nom_image}
+                  alt={image.url_image}
                   className="max-h-full max-w-full"
                 />
               </div>
