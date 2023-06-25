@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CreateCaptchaForm = () => {
   const [captchaName, setCaptchaName] = useState("");
@@ -6,6 +6,19 @@ const CreateCaptchaForm = () => {
   const [newTheme, setNewTheme] = useState("");
   const [images, setImages] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [themes, setThemes] = useState([]);
+
+  useEffect(() => {
+    // Récupérer les thèmes disponibles depuis le backend
+    fetch("http://localhost:8089/captcha/themes")
+      .then((response) => response.json())
+      .then((data) => {
+        setThemes(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   const handleCaptchaNameChange = (e) => {
     setCaptchaName(e.target.value);
@@ -133,7 +146,11 @@ const CreateCaptchaForm = () => {
                   >
                     <option value="">Choose a theme</option>
                     <option value="nouveau">New Theme</option>
-                    {/* Render existing themes from backend */}
+                    {themes.map((theme) => (
+                      <option key={theme.id} value={theme.id}>
+                        {theme.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 {theme === "nouveau" && (
