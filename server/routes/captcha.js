@@ -207,12 +207,11 @@ router.get("/themes", async (req, res) => {
   }
 });
 
-// Route pour obtenir un captcha par son ID
-router.get("/captcha/:id", Authorization, async (req, res) => {
+router.get("/user-captcha", Authorization, async (req, res) => {
   try {
-    const { id } = req.params;
+    const userID = req.user;
 
-    // Recherche du captcha par son ID avec le thème et les images associées
+    // Recherche des captchas de l'utilisateur
     const getCaptchaQuery = `
       SELECT 
         Captcha.*, 
@@ -226,28 +225,30 @@ router.get("/captcha/:id", Authorization, async (req, res) => {
       JOIN 
         Image ON Captcha.id_captcha = Image.id_captcha 
       WHERE 
-        Captcha.id_captcha = $1
+        Captcha.id_user = $1
     `;
-    const captchaResult = await pool.query(getCaptchaQuery, [id]);
+    const captchaResult = await pool.query(getCaptchaQuery, [userID]);
 
     if (captchaResult.rows.length === 0) {
-      return res.status(404).json({ error: "Captcha introuvable" });
+      return res.status(404).json({ error: "Aucun captcha trouvé" });
     }
 
-    // Création de l'objet de réponse contenant les informations du captcha et ses images
-    const captcha = {
-      id_captcha: captchaResult.rows[0].id_captcha,
-      id_theme: captchaResult.rows[0].id_theme,
-      nom_captcha: captchaResult.rows[0].nom_captcha,
-      urlUsage: captchaResult.rows[0].urlUsage,
-      theme: captchaResult.rows[0].theme,
-      images: captchaResult.rows.map((row) => ({
-        nom_image: row.image_nom,
-        url_image: `/uploads/${row.image_url}`, // Ajout du chemin relatif vers l'image
-      })),
-    };
+    // Création de l'objet de réponse contenant les informations des captchas
+    const captchas = captchaResult.rows.map((row) => ({
+      id_captcha: row.id_captcha,
+      id_theme: row.id_theme,
+      nom_captcha: row.nom_captcha,
+      urlUsage: row.urlUsage,
+      theme: row.theme,
+      images: [
+        {
+          nom_image: row.image_nom,
+          url_image: `/uploads/${row.image_url}`,
+        },
+      ],
+    }));
 
-    res.json(captcha);
+    res.json(captchas);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur de serveur" });
