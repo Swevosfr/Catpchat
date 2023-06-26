@@ -34,6 +34,9 @@ const AdminArtistes = () => {
             <thead>
               <tr>
                 <th className="py-3 px-4 border-b font-semibold text-sm text-black text-center">
+                  ID
+                </th>
+                <th className="py-3 px-4 border-b font-semibold text-sm text-black text-center">
                   Prénom
                 </th>
                 <th className="py-3 px-4 border-b font-semibold text-sm text-black text-center">
@@ -50,6 +53,9 @@ const AdminArtistes = () => {
             <tbody>
               {artists.map((artist) => (
                 <tr key={artist.user_email} className="border-b">
+                  <td className="py-3 px-4 text-sm text-black text-center">
+                    {artist.id_user}
+                  </td>
                   <td className="py-3 px-4 text-sm text-black text-center">
                     {artist.user_first_name}
                   </td>
