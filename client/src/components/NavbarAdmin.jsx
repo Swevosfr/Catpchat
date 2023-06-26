@@ -28,8 +28,11 @@ export default function NavbarAdmin() {
           <p className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-white">
             <Link to="/admin/admin-artistes">Les artistes</Link>
           </p>
-          <p className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <p className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-white">
             <Link to="/admin/admin-captcha">Les captchas</Link>
+          </p>
+          <p className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <Link to="/admin/admin-profil">Mon profil</Link>
           </p>
         </div>
         <div className="flex lg:hidden">

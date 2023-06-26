@@ -5,6 +5,7 @@ import LayoutAdmin from "./LayoutAdmin";
 import AdminDashboard from "../admin/adminDashboard/AdminDashboard";
 import AdminCaptcha from "../admin/adminCaptcha/AdminCaptcha";
 import AdminArtistes from "./adminArtistes/AdminArtistes";
+import AdminProfil from "./adminProfil/AdminProfil";
 
 export default function AdminRouter() {
   return (
@@ -14,6 +15,7 @@ export default function AdminRouter() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/admin-captcha" element={<AdminCaptcha />} />
         <Route path="/admin-artistes" element={<AdminArtistes />} />
+        <Route path="/admin-profil" element={<AdminProfil />} />
         <Route path="*" element={<Error />} />
       </Route>
     </Routes>
