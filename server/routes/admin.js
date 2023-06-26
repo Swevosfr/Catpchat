@@ -31,7 +31,7 @@ router.post("/nameAdmin", Authorization, async (req, res) => {
 router.get("/artistes", async (req, res) => {
   try {
     const artists = await pool.query(
-      "SELECT user_first_name, user_last_name, user_email FROM Users WHERE isAdmin = 0"
+      "SELECT id_user, user_first_name, user_last_name, user_email FROM Users WHERE isAdmin = 0"
     );
     res.json(artists.rows);
   } catch (error) {
