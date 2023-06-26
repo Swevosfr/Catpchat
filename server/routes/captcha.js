@@ -155,7 +155,7 @@ router.post(
   }
 );
 
-router.delete("/captcha/:id", Authorization, async (req, res) => {
+router.delete("/captcha/:id", async (req, res) => {
   try {
     const captchaID = req.params.id;
 

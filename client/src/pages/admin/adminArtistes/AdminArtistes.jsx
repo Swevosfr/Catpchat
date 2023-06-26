@@ -18,9 +18,16 @@ const AdminArtistes = () => {
     }
   };
 
-  const handleDeleteArtist = (id) => {
-    // Logique de suppression de l'artiste avec l'ID spécifié
-    console.log("Suppression de l'artiste avec l'ID :", id);
+  const handleDeleteArtist = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8089/admin/users/${id}`);
+      setArtists((prevArtists) =>
+        prevArtists.filter((artist) => artist.id_user !== id)
+      );
+      console.log("Artiste supprimé avec l'ID :", id);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -52,7 +59,7 @@ const AdminArtistes = () => {
             </thead>
             <tbody>
               {artists.map((artist) => (
-                <tr key={artist.user_email} className="border-b">
+                <tr key={artist.id_user} className="border-b">
                   <td className="py-3 px-4 text-sm text-black text-center">
                     {artist.id_user}
                   </td>

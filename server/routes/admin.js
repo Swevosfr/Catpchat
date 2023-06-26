@@ -79,6 +79,53 @@ router.delete("/users/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+router.get("/captchas", async (req, res) => {
+  try {
+    const getCaptchasQuery = `
+        SELECT 
+          Captcha.id_captcha,
+          Captcha.nom_capchat AS nom_captcha,
+          Theme.nom_theme AS theme,
+          Users.user_first_name,
+          Users.user_last_name,
+          Users.user_email
+        FROM 
+          Captcha 
+        JOIN 
+          Theme ON Captcha.id_theme = Theme.id_theme 
+        JOIN
+          Users ON Captcha.id_user = Users.id_user
+      `;
+    const captchaResult = await pool.query(getCaptchasQuery);
+
+    if (captchaResult.rows.length === 0) {
+      return res.status(404).json({ error: "Aucun captcha trouvé" });
+    }
+
+    const captchas = captchaResult.rows.map((row) => {
+      const {
+        id_captcha,
+        nom_captcha,
+        theme,
+        user_first_name,
+        user_last_name,
+        user_email,
+      } = row;
+      return {
+        id_captcha,
+        nom_captcha,
+        theme,
+        user_first_name,
+        user_last_name,
+        user_email,
+      };
+    });
+
+    res.json(captchas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur de serveur" });
+  }
+});
 
 module.exports = router;
